@@ -1,7 +1,9 @@
-GCC=gcc
-GCCFLAGS= -pedantic -Wall -std=c99
-SOURCES=$(wildcard *.c)
+GCC = gcc
+GCCFLAGS = -pedantic -Wall -std=c99
 
 all: 
-	$(GCC) $(GCCFLAGS) $(SOURCES) -o selfMadeTree
+	$(GCC) $(GCCFLAGS) selfMadeTree.c -o selfMadeTree
+
+clean: 
+	rm selfMadeTree
 	
