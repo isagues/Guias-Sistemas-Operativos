@@ -1,9 +1,19 @@
-GCC = gcc
-GCCFLAGS = -pedantic -Wall -std=c99
+include ../Makefile.inc
 
-all: 
-	$(GCC) $(GCCFLAGS) selfMadeTree.c -o selfMadeTree
+BIN = listdir
+PACK = $(BIN).tar.gz
+SOURCES = main.c
+
+all: $(BIN)
+
+$(BIN): $(SOURCES)
+	$(GCC) $(GCCFLAGS) $^ -o $@
 
 clean: 
-	rm selfMadeTree
+	$(REMOVE) $(BIN) $(PACK)
+
+compress: clean
+	$(TAR) $(PACK) *
+
+.PHONY: all clean compress
 	
