@@ -9,18 +9,17 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#define MAX_PATHNAME_LEN 10000
-#define MAX_SPACE 1000
+#define MAX_PATHNAME_LEN 1000
 #define SPACER_CHAR '\t'
 
 #define S_IFMT  ((mode_t) 0170000)	
 #define S_IFREG ((mode_t) 0100000)
 #define S_IFDIR ((mode_t) 0040000)
+
 #define INITIAL_DEPTH 0
 
 void auxRecursiveTree(DIR *dirStream, char spacerChar, int depth, char *pathmane );
 void recursiveTree(char *pathmane, char spacerChar, int depth);
-
 
 int main(int argc, char const *argv[]){
     //Si me dan un path, desde ese path. Sino desde PWD
@@ -30,18 +29,20 @@ int main(int argc, char const *argv[]){
         //Errores manejados todos juntos. Habria que comunicar especificamente cual sucedio.
         if( getcwd(pathname, MAX_PATHNAME_LEN) == NULL ){
             printf("An error ocurred trying to get the current working directory. \n");
-            exit(1);
+            exit(EXIT_FAILURE);
         }
     } else {
-        if( strlen(argv[1]) >= MAX_PATHNAME_LEN - 1){
+        if( strlen(argv[1]) + 1 >= MAX_PATHNAME_LEN){
             printf("Pathname too large to process. \n");
-            exit(1);
+            exit(EXIT_FAILURE);
         } else {
-            strcpy(pathname,argv[1]);
+            //Tengo una duda aca, inicialmente hacia un strcpy pero PVS me decia que podia resultar en overflow. Si ya revise la longitud, puede dar overflow?
+            strncpy(pathname,argv[1],MAX_PATHNAME_LEN);
+            pathname[MAX_PATHNAME_LEN - 1] = '\0';
         }
     }
     
-    printf("Tree of path: %s \n",pathname);
+    printf("%s\n",pathname);
     recursiveTree(pathname, SPACER_CHAR, INITIAL_DEPTH);
     return 0;
 }
@@ -52,9 +53,15 @@ void recursiveTree(char *pathname, char spacerChar, int depth){
     //Errores manejados todos juntos.
     if( dirStream == NULL){
         printf("An error ocurred trying to open the directory. \n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
    auxRecursiveTree(dirStream,spacerChar,depth+1, pathname);
+
+   if(closedir(dirStream) == -1){
+       perror("An error ocurred closing the DIR stream\n");
+       exit(EXIT_FAILURE);
+   }
+    
 }
 
 void auxRecursiveTree(DIR *dirStream, char spacerChar, int depth, char *pathname ){
@@ -66,28 +73,24 @@ void auxRecursiveTree(DIR *dirStream, char spacerChar, int depth, char *pathname
             return;
         } else {
             printf("An error ocurred reading a directory \n");
-            exit(1);
+            exit(EXIT_FAILURE);
         }
     } else {
         struct stat entryStat;
+        int pathLen = strlen(pathname);
 
-        char currentPath[MAX_PATHNAME_LEN];
-        
-        //Armado del pathactual
-        strcpy(currentPath, pathname);
-
-        if(strlen(currentPath) + strlen(entry->d_name) + 1 >= MAX_PATHNAME_LEN ){
+        if(pathLen + strlen(entry->d_name) + 1 >= MAX_PATHNAME_LEN ){
             printf("The path name is too long \n");
-            exit(1);
+            exit(EXIT_FAILURE);
         }else{
-            strcat(currentPath, "/");
-            strcat(currentPath, entry->d_name);
+            strcat(pathname, "/");
+            strcat(pathname, entry->d_name);
         }
         
         //Obtencion de la informacion de la entrada actual
-        if( stat(currentPath, &entryStat) == -1 ){
+        if( stat(pathname, &entryStat) == -1 ){
             printf("An error ocurred accesing an entry info \n");
-            exit(1);
+            exit(EXIT_FAILURE);
         }
 
         //Procesado de la entrada
@@ -104,20 +107,10 @@ void auxRecursiveTree(DIR *dirStream, char spacerChar, int depth, char *pathname
             }
             printf("%s \n",entry->d_name);
             
-            char aux[MAX_SPACE];
+            recursiveTree(pathname, spacerChar, depth);
             
-            strcpy(aux, pathname);
-            
-            if(strlen(aux) + strlen(entry->d_name) + 1 >= MAX_SPACE){
-                printf("The path name is too long");
-                exit(1);
-            }else{
-                strcat(aux, "/");
-                strcat(aux, entry->d_name);
-                recursiveTree(aux, spacerChar, depth);
-            }
         }
-        
+        pathname[pathLen] = '\0';
         auxRecursiveTree(dirStream, spacerChar, depth,pathname);
     }
 }
