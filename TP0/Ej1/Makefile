@@ -1,8 +1,8 @@
 include ../Makefile.inc
 
-BIN = listdir
-PACK = $(BIN).tar.gz
+BIN = listDir
 SOURCES = main.c
+PACK = $(BIN).tar.gz
 
 all: $(BIN)
 
@@ -14,6 +14,7 @@ clean:
 
 compress: clean
 	$(TAR) $(PACK) *
+
 
 .PHONY: all clean compress
 	

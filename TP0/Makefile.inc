@@ -1,4 +1,5 @@
 GCC = gcc
-GCCFLAGS = -pedantic -Wall -std=c99 -g
+GCCFLAGS = -Wall -g -std=c99 -pedantic  
 REMOVE = rm -f
 TAR = tar -czvf
+OTROS = -MM

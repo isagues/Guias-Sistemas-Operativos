@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -31,7 +33,7 @@ int main(int argc, char const *argv[]){
             exit(1);
         }
     } else {
-        if( strlen(argv[1]) >= MAX_PATHNAME_LEN ){
+        if( strlen(argv[1]) >= MAX_PATHNAME_LEN - 1){
             printf("Pathname too large to process. \n");
             exit(1);
         } else {
