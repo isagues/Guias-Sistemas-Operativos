@@ -1,6 +1,6 @@
 include ../Makefile.inc
 
-BIN = listDir
+BIN = listdir
 SOURCES = main.c
 PACK = $(BIN).tar.gz
 TEST = $(wildcard *.tasks)
@@ -15,12 +15,14 @@ clean:
 	$(REMOVE) $(BIN) $(PACK) $(TEST)
 
 compress: clean
-	$(TAR) $(PACK) *
+	$(TAR) $(PACK) * 
 
 test: clean
-	../pvs.sh
-	valgrind ./$(BIN) $(VALGRIND_PATH) 2> valgrind.tasks
-	cppcheck --quiet --enable=all --force --inconclusive --suppress=missingIncludeSystem  main.c 2> cppcheck.tasks
+	./pvs.sh
+	valgrind ./$(BIN) $(VALGRIND_PATH) 2> valgrind.tasks > /dev/null
+	# Si agrego --suppress=missingIncludeSystem a cppcheck soluciona el error que me marca.
+	# No se si es un falso positivo o un verdadero error.
+	cppcheck --quiet --enable=all --force --inconclusive  main.c 2> cppcheck.tasks
 
 .PHONY: all clean compress test
 	
