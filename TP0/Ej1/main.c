@@ -12,9 +12,6 @@
 #define MAX_PATHNAME_LEN 1000
 #define SPACER_CHAR '\t'
 
-#define S_IFMT  ((mode_t) 0170000)	
-#define S_IFREG ((mode_t) 0100000)
-#define S_IFDIR ((mode_t) 0040000)
 
 #define INITIAL_DEPTH 0
 
@@ -90,7 +87,7 @@ void auxRecursiveTree(DIR *dirStream, char spacerChar, int depth, char *pathname
         }
     } else {
         struct stat entryStat;
-        int pathLen = strlen(pathname);
+        size_t pathLen = strlen(pathname);
 
         concatPath(pathname,entry->d_name);
         
